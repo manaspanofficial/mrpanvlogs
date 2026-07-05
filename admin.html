@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Admin Dashboard | Mr Pan Vlogs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* Admin Premium Variables */
+    :root {
+      --admin-bg: #05070d;
+      --admin-card-bg: rgba(255, 255, 255, 0.02);
+      --admin-border: rgba(255, 255, 255, 0.08);
+      --admin-border-hover: rgba(255, 107, 53, 0.4);
+      --admin-glow: 0 0 20px rgba(255, 107, 53, 0.15);
+      --admin-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    body { background: var(--admin-bg); padding-top: 80px; }
+    
+    /* Elegant Container */
+    .admin-container { 
+      max-width: 1050px; 
+      margin: 0 auto; 
+      padding: 32px; 
+      animation: fadeIn 0.8s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Login Screen - Glassmorphism */
+    #login-screen {
+      max-width: 420px; 
+      margin: 100px auto;
+      background: var(--admin-card-bg); 
+      padding: 48px 40px;
+      border-radius: 24px; 
+      border: 1px solid var(--admin-border);
+      text-align: center;
+      backdrop-filter: blur(24px);
+      box-shadow: var(--admin-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    #login-screen::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--gold), transparent);
+    }
+    #login-screen h2 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+    #login-screen input {
+      width: 100%; padding: 16px 20px; margin-bottom: 20px;
+      background: rgba(0,0,0,0.3); border: 1px solid var(--admin-border);
+      color: #fff; border-radius: 12px;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    #login-screen input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+      outline: none;
+    }
+    #login-btn { padding: 16px; border-radius: 12px; font-size: 1.05rem; font-weight: 700; letter-spacing: 1px; }
+    
+    /* Dashboard Base */
+    #dashboard-screen { display: none; }
+    .admin-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 40px; padding-bottom: 20px; 
+      border-bottom: 1px solid var(--admin-border);
+    }
+    .admin-header h2 {
+      font-size: 2.4rem; font-weight: 900;
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    
+    .tab-content { display: none; animation: fadeIn 0.4s ease; }
+    .tab-content.active { display: block; }
+    
+    /* Premium Form Cards */
+    .admin-form-card {
+      background: var(--admin-card-bg); 
+      padding: 32px;
+      border-radius: 20px; 
+      border: 1px solid var(--admin-border);
+      margin-bottom: 40px;
+      display: none;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--admin-shadow);
+      position: relative;
+    }
+    .form-row { display: flex; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
+    .form-row > div { flex: 1; min-width: 250px; }
+    .admin-form-card label { 
+      display: block; margin-bottom: 10px; font-size: 0.85rem; 
+      color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .admin-form-card input, .admin-form-card textarea {
+      width: 100%; padding: 16px;
+      background: rgba(0,0,0,0.2); border: 1px solid var(--admin-border);
+      color: #fff; border-radius: 12px; font-family: inherit; font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    .admin-form-card input:focus, .admin-form-card textarea:focus {
+      border-color: var(--accent);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+      outline: none;
+    }
+    
+    /* Data Grid & Cards */
+    .data-list { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+      gap: 28px; 
+    }
+    .admin-card {
+      background: var(--admin-card-bg);
+      border-radius: 20px;
+      border: 1px solid var(--admin-border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      backdrop-filter: blur(10px);
+    }
+    .admin-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--admin-border-hover);
+      box-shadow: var(--admin-glow), var(--admin-shadow);
+    }
+    .admin-card-content { padding: 24px; flex: 1; }
+    .admin-card-title { font-size: 1.1rem; font-weight: 700; margin: 0 0 12px; line-height: 1.5; color: #fff; }
+    .admin-card-meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap; }
+    
+    .admin-card-actions {
+      display: flex; border-top: 1px solid var(--admin-border); background: rgba(0,0,0,0.2);
+    }
+    .admin-card-actions button {
+      flex: 1; padding: 16px; border: none; background: transparent; cursor: pointer;
+      font-size: 0.95rem; font-weight: 600; transition: var(--transition);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .admin-card-actions .btn-edit { color: #f09433; border-right: 1px solid var(--admin-border); }
+    .admin-card-actions .btn-delete { color: #ff4b4b; }
+    .admin-card-actions button:hover { background: rgba(255,255,255,0.08); }
+
+    .section-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 32px;
+    }
+    .section-header h3 { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.5px; }
+    
+    /* Stylish Buttons */
+    .btn-primary.btn-sm { padding: 10px 20px; font-size: 0.9rem; border-radius: 8px; }
+    
+    /* Sidebar Premium Styles */
+    .admin-sidebar {
+      position: fixed;
+      top: 70px;
+      left: -280px;
+      width: 280px;
+      height: calc(100vh - 70px);
+      background: rgba(5, 7, 13, 0.95);
+      backdrop-filter: blur(24px);
+      border-right: 1px solid var(--admin-border);
+      padding: 32px 24px;
+      transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+    }
+    .admin-sidebar.open { left: 0; }
+    
+    .sidebar-btn {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+      padding: 14px 20px;
+      text-align: left;
+      font-size: 1.05rem;
+      font-weight: 500;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .sidebar-btn i { font-size: 1.2rem; width: 24px; text-align: center; opacity: 0.7; transition: 0.3s ease; }
+    
+    .sidebar-btn:hover {
+      background: rgba(255,255,255,0.03);
+      color: #fff;
+      transform: translateX(4px);
+    }
+    .sidebar-btn:hover i { opacity: 1; color: var(--accent); }
+    
+    .sidebar-btn.active {
+      background: linear-gradient(90deg, rgba(255,107,53,0.1), transparent);
+      color: var(--accent);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px 12px 12px 4px;
+      font-weight: 700;
+    }
+    .sidebar-btn.active i { opacity: 1; color: var(--accent); }
+    
+    .hamburger-admin {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--admin-border);
+      color: #fff;
+      font-size: 1.2rem;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: none;
+      margin-right: 20px;
+      transition: all 0.3s ease;
+    }
+    .hamburger-admin:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); color: var(--accent); }
+    
+    body.dashboard-active .hamburger-admin { display: flex; align-items: center; justify-content: center; }
+
+    /* Responsive Admin Panel */
+    @media (max-width: 768px) {
+      .admin-container { padding: 16px; }
+      #login-screen { padding: 32px 24px; margin: 40px auto; max-width: 90%; }
+      .admin-header { margin-bottom: 24px; flex-direction: column; align-items: flex-start; gap: 16px; }
+      .admin-header h2 { font-size: 1.8rem; }
+      .admin-form-card { padding: 20px; }
+      .admin-form-card input, .admin-form-card textarea { font-size: 16px; padding: 12px; } /* 16px prevents iOS zoom */
+      .form-row { gap: 16px; margin-bottom: 16px; }
+      .form-row > div { min-width: 100%; }
+      .data-list { grid-template-columns: 1fr; }
+      
+      /* Override style.css mobile nav layout for admin */
+      .navbar { height: 70px !important; padding: 0 !important; display: flex; align-items: center; }
+      .nav-container { height: 100% !important; flex-direction: row !important; align-items: center; justify-content: flex-start !important; }
+      .hamburger-admin { margin-right: 12px; margin-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar scrolled">
+    <div class="nav-container" style="max-width: 100%; padding: 0 32px; justify-content: flex-start;">
+      <button class="hamburger-admin" id="admin-hamburger"><i class="fas fa-bars"></i></button>
+      <a href="#" id="admin-logo-link" class="nav-logo">
+        <img src="avatar.png.png" alt="Mr Pan" class="logo-avatar" />
+        <span class="logo-text">Mr Pan Vlogs <span class="accent">Admin</span></span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ADMIN SIDEBAR (Hidden by default) -->
+  <div id="admin-sidebar" class="admin-sidebar">
+    <button class="sidebar-btn" data-tab="home"><i class="fas fa-home"></i> Home</button>
+    <button class="sidebar-btn" data-tab="about"><i class="fas fa-user"></i> About</button>
+    <button class="sidebar-btn active" data-tab="videos"><i class="fas fa-play-circle"></i> Videos</button>
+    <button class="sidebar-btn" data-tab="blogs"><i class="fas fa-file-alt"></i> Blog</button>
+    <button class="sidebar-btn" data-tab="contact"><i class="fas fa-envelope"></i> Contact</button>
+    <button class="sidebar-btn" data-tab="mail"><i class="fas fa-envelope-open-text"></i> Mail</button>
+    
+    <div style="margin-top: auto;">
+      <button class="sidebar-btn" id="logout-btn-sidebar" style="color: #ff6b35;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </div>
+
+  <div class="admin-container">
+    
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen">
+      <h2>Admin Login</h2>
+      <p class="page-hero-sub" style="margin-bottom: 24px;">Please login to access the dashboard</p>
+      <input type="email" id="admin-email" placeholder="Email" />
+      <input type="password" id="admin-pass" placeholder="Password" />
+      <button class="btn btn-primary" style="width: 100%" id="login-btn">Login</button>
+      <p id="login-error" style="color: #ff6b35; margin-top: 12px; display: none; font-size: 0.9rem;"></p>
+    </div>
+
+    <!-- DASHBOARD SCREEN -->
+    <div id="dashboard-screen">
+      <div class="admin-header">
+        <h2>Dashboard</h2>
+      </div>
+
+      <!-- HOME TAB -->
+      <div id="tab-home" class="tab-content">
+        <div class="section-header">
+          <h3>Home Page Settings</h3>
+          <button class="btn btn-primary btn-sm" onclick="saveHomeSettings()">Save Changes</button>
+        </div>
+        <div class="admin-form-card" style="display: block;">
+          <form id="home-config-form">
+            <div class="form-row">
+              <div style="flex: 100%;">
+                <label>Hero Tagline</label>
+                <input type="text" id="config-home-tagline" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div style="flex: 100%;">
+                <label>Hero Description</label>
+                <textarea id="config-home-desc" rows="3"></textarea>
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>Subscribers Count (e.g. 50)</label>
+                <input type="number" id="config-home-subcount" />
+              </div>
+              <div>
+                <label>Videos Count (e.g. 120)</label>
+                <input type="number" id="config-home-vidcount" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>Floating Card 1</label>
+                <input type="text" id="config-home-card1" />
+              </div>
+              <div>
+                <label>Floating Card 2</label>
+                <input type="text" id="config-home-card2" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>Floating Card 3</label>
+                <input type="text" id="config-home-card3" />
+              </div>
+              <div>
+                <label>Floating Card 4</label>
+                <input type="text" id="config-home-card4" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ABOUT TAB -->
+      <div id="tab-about" class="tab-content">
+        <div class="section-header">
+          <h3>About Page Settings</h3>
+          <button class="btn btn-primary btn-sm" onclick="saveAboutSettings()">Save Changes</button>
+        </div>
+        <div class="admin-form-card" style="display: block;">
+          <form id="about-config-form">
+            <div class="form-row">
+              <div style="flex: 100%;">
+                <label>About Description (Use Enter for new lines)</label>
+                <textarea id="config-about-desc" rows="6"></textarea>
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>Subscribers Label</label>
+                <input type="text" id="config-about-sublabel" />
+              </div>
+              <div>
+                <label>Videos Label</label>
+                <input type="text" id="config-about-vidlabel" />
+              </div>
+              <div>
+                <label>Years Label</label>
+                <input type="text" id="config-about-yrlabel" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- CONTACT TAB -->
+      <div id="tab-contact" class="tab-content">
+        <div class="section-header">
+          <h3>Contact Page Settings</h3>
+          <button class="btn btn-primary btn-sm" onclick="saveContactSettings()">Save Changes</button>
+        </div>
+        <div class="admin-form-card" style="display: block;">
+          <form id="contact-config-form">
+            <div class="form-row">
+              <div style="flex: 100%;">
+                <label>Business Email</label>
+                <input type="email" id="config-contact-email" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- MAIL TAB -->
+      <div id="tab-mail" class="tab-content">
+        <div class="section-header">
+          <h3>Messages</h3>
+          <button class="btn btn-primary btn-sm" onclick="loadMessages()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+        <div class="data-list" id="messages-list">
+          <p>Loading messages...</p>
+        </div>
+      </div>
+
+      <!-- VIDEOS TAB -->
+      <div id="tab-videos" class="tab-content active">
+        <div class="section-header">
+          <h3>Existing Videos</h3>
+          <button class="btn btn-primary btn-sm" onclick="toggleVideoForm()"><i class="fas fa-plus"></i> Add New</button>
+        </div>
+        
+        <div class="admin-form-card" id="video-form-card">
+          <h3 id="video-form-title">Add New Video</h3>
+          <form id="video-form">
+            <input type="hidden" id="video-id" />
+            <div class="form-row">
+              <div>
+                <label>Video Title</label>
+                <input type="text" id="video-title" required />
+              </div>
+              <div>
+                <label>YouTube Video ID (e.g., dQw4w9WgXcQ)</label>
+                <input type="text" id="video-yt-id" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>Duration (e.g., 15:42)</label>
+                <input type="text" id="video-duration" required />
+              </div>
+              <div>
+                <label>Views (e.g., 45K views)</label>
+                <input type="text" id="video-views" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>Background Gradient (CSS value)</label>
+                <input type="text" id="video-bg" value="linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)" required />
+              </div>
+              <div>
+                <label>Icon (Emoji)</label>
+                <input type="text" id="video-icon" value="🏔️" required />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="video-submit-btn">Save Video</button>
+            <button type="button" class="btn btn-outline" id="video-cancel-btn">Cancel</button>
+          </form>
+        </div>
+        
+        <div class="data-list" id="videos-list">
+          <p>Loading videos...</p>
+        </div>
+      </div>
+
+      <!-- BLOGS TAB -->
+      <div id="tab-blogs" class="tab-content">
+        <div class="section-header">
+          <h3>Existing Blogs</h3>
+          <button class="btn btn-primary btn-sm" onclick="toggleBlogForm()"><i class="fas fa-plus"></i> Add New</button>
+        </div>
+        
+        <div class="admin-form-card" id="blog-form-card">
+          <h3 id="blog-form-title">Add New Blog</h3>
+          <form id="blog-form">
+            <input type="hidden" id="blog-id" />
+            <div class="form-row">
+              <div>
+                <label>Blog Title</label>
+                <input type="text" id="blog-title" required />
+              </div>
+              <div>
+                <label>Date (e.g., June 15, 2025)</label>
+                <input type="text" id="blog-date" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label>Tags (Comma separated, e.g., Travel, Hills)</label>
+                <input type="text" id="blog-tags" required />
+              </div>
+              <div>
+                <label>Icon (Emoji)</label>
+                <input type="text" id="blog-icon" value="🏔️" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div style="flex: 100%">
+                <label>Excerpt / Content</label>
+                <textarea id="blog-excerpt" rows="3" required></textarea>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="blog-submit-btn">Save Blog</button>
+            <button type="button" class="btn btn-outline" id="blog-cancel-btn">Cancel</button>
+          </form>
+        </div>
+        
+        <div class="data-list" id="blogs-list">
+          <p>Loading blogs...</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Firebase Scripts (Compat v8) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
